@@ -8,5 +8,20 @@
 </head>
 <body>
     <h1>Top Page</h1>
+    <button id="corsReqButton" onclick="requestCors()">クロスオリジンへリクエスト</button>
+
+    <script>
+        // クロスオリジンへのアクセスを試みる関数
+        const requestCors = async () => {
+            const btn = document.getElementById("corsReqButton");
+
+            await fetch("http://site.example:3000/api", {
+                method: "GET",
+                headers: {
+                    "X-Token": "aBcDeF1234567890"
+                }
+            });
+        }
+    </script>
 </body>
 </html>
