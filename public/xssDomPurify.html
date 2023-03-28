@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XSS検証用ページ2</title>
+    <!-- DOMPurify導入 -->
+    <script src="./purify.js"></script>
+  </head>
+  <body>
+    <h1>XSS検証用ページ2</h1>
+    <div id="result"></div>
+
+    <!-- XSS脆弱性 -->
+    <script>
+      // XSSを軽減するライブラリDOMPurifyを利用してXSS対策を行う
+      // やりたいこと：クエリパラメータからmessageを取得して画面に表示
+
+      // URLオブジェクト生成
+      const url = new URL(location.href);
+      // クエリパラメータからmessageを取得して変数messageに格納
+      const message = url.searchParams.get('message');
+
+      if (message !== null) {
+        // DOMPurifyが提供しているsanitize関数を使って、XSSの原因となりうる文字列を削除することで無害化する
+        const sanitizedMessage = DOMPurify.sanitize(message);
+        document.querySelector('#result').innerHTML = sanitizedMessage;
+
+        // ※DOMPurifyは、リンクにJavaScriptを仕込むXSS攻撃には対応していない。aタグ全体を入れたら対応できる。
+      }
+    </script>
+  </body>
+</html>

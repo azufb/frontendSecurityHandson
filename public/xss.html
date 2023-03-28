@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XSS検証用ページ1</title>
+  </head>
+  <body>
+    <h1>XSS検証用ページ1</h1>
+    <div id="result"></div>
+    <a id="link" href="#">リンクをクリック</a>
+    <div id="linkErrorMessage"></div>
+
+    <!-- XSS脆弱性 -->
+    <script>
+      // やりたいこと１：クエリパラメータからmessageを取得して画面に表示
+
+      // URLオブジェクト生成
+      const url = new URL(location.href);
+      // クエリパラメータからmessageを取得して変数messageに格納
+      const message = url.searchParams.get('message');
+
+      if (message !== null) {
+        // 変数messageがnullでなければ、idがresultのHTML要素の中身に変数messageの値を入れる
+        // innerHTMLはダメな例
+        //document.querySelector('#result').innerHTML = message;
+
+        // XSS対策として、適切なDOM APIを使う
+        // createTextNodeでTextノードを作成、これにより、HTML要素としてではなく、テキストとして扱う
+        const textNode = document.createTextNode(message);
+        // appendChildでidがresultの親ノードの子ノードとして追加する
+        document.querySelector('#result').appendChild(textNode);
+
+        // これでもOK！
+        // document.querySelector('#result').textContent = message;
+      }
+
+      // やりたいこと２：クエリパラメータからリンクのhref属性を動的に変更する
+      // クエリパラメータからurlを取得して変数urlStrに格納
+      const urlStr = url.searchParams.get('url');
+      if (urlStr !== null) {
+        const linkUrl = new URL(urlStr, url.origin);
+
+        // クエリパラメータのurlにjavascript:と任意のJavaScriptコードが設定されていると、リンクをクリックすると実行されてしまう
+        // hrefに渡す前に、スキームをチェックして、protocalがhttp/httpsから始まる場合のみhrefに渡す
+        if (linkUrl.protocol === 'http:' || linkUrl.protocol === 'https:') {
+          document.querySelector('#linkErrorMessage').textContent = '';
+          document.querySelector('#link').href = linkUrl;
+        } else {
+          document.querySelector('#linkErrorMessage').textContent =
+            '不正なリンクが入っています。クリックしないでください。';
+        }
+      }
+    </script>
+  </body>
+</html>
