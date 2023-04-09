@@ -3,6 +3,9 @@ const express = require('express');
 const session = require('express-session');
 // Cookieの読み書きをするライブラリ
 const cookieParser = require('cookie-parser');
+// トークン生成のため入れる
+const crypto = require('crypto');
+
 const router = express.Router();
 
 // セッション管理の設定
@@ -46,6 +49,14 @@ router.post('/login', (req, res) => {
   sessionData = req.session;
   // 変数sessionDataのusernameに、リクエストボディから取り出したusernameを入れる
   sessionData.username = username;
+
+  // トークン生成
+  const token = crypto.randomUUID();
+  // レスポンスのcookieにcsrf_tokenを追加。
+  res.cookie('csrf_token', token, {
+    secure: true,
+  });
+
   // CSRF検証用ページへリダイレクト
   res.redirect('/csrf_test.html');
 });
@@ -58,6 +69,14 @@ router.post('/remit', (req, res) => {
   if (!req.session.username || req.session.username !== sessionData.username) {
     res.status(403);
     res.send('ログインしていません。');
+    return;
+  }
+
+  // リクエストボディのトークンとcookieに保存されているトークンを検証
+  // 異なっていれば、不正なリクエストだと判断
+  if (req.cookies['csrf_token'] !== req.body['csrf_token']) {
+    res.status(400);
+    res.send('不正なリクエストです。');
     return;
   }
 
