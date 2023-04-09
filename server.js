@@ -10,6 +10,15 @@ const port = 3000;
 // EJSをテンプレートエンジンとして利用できるように設定
 app.set('view engine', 'ejs');
 
+// クリックジャッキング対策のため、X-Frame-Optionsヘッダを付与
+app.use(
+  express.static('public', {
+    setHeaders: (res, path, stat) => {
+      res.header('X-Frame-Options', 'SAMEORIGIN');
+    },
+  })
+);
+
 // ルーティング用オブジェクト読み込み
 const api = require('./routes/api');
 // CSRF検証用のルーティング処理追加
