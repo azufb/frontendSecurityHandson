@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>オープンリダイレクト検証ページ</title>
+  </head>
+  <body>
+    <h1>オープンリダイレクト検証ページ</h1>
+
+    <script>
+      const url = new URL(location.href);
+      // クエリ文字列urlを取得
+      const redirectUrl = url.searchParams.get('url');
+
+      if (redirectUrl) {
+        const redirectUrlObj = new URL(redirectUrl, location.href);
+        // クエリ文字列urlと今のページが同一のオリジンであれば、リダイレクト
+        /*if (redirectUrlObj.origin === location.origin) {
+          // クエリ文字列urlへリダイレクト
+          location.href = redirectUrl;
+        } else {
+          alert('オープンリダイレクト攻撃発生！！');
+        }*/
+
+        // 異なるオリジンでも、確認ダイアログで確認しOKであればリダイレクトできるようにする
+        if (
+          redirectUrlObj.origin === location.origin ||
+          confirm(
+            `${redirectUrl}へリダイレクトしようとしています。よろしいでしょうか？`
+          )
+        ) {
+          // クエリ文字列urlへリダイレクト
+          location.href = redirectUrl;
+        } else {
+          alert('オープンリダイレクト攻撃発生！！');
+        }
+      }
+    </script>
+  </body>
+</html>
