@@ -12,6 +12,8 @@ app.set('view engine', 'ejs');
 
 // ルーティング用オブジェクト読み込み
 const api = require('./routes/api');
+// CSRF検証用のルーティング処理追加
+const csrf = require('./routes/csrf');
 
 // use関数でExpressのミドルウェアを設定。
 // 頻繁に実行する関数はuse関数でミドルウェアに設定することで、毎回呼び出さないで済む。
@@ -20,6 +22,8 @@ app.use(express.static('public'));
 
 // /apiと言うパス名とルーティング用オブジェクトを紐づける
 app.use('/api', api);
+// /csrfと言うパス名とルーティング用オブジェクトを紐づける
+app.use('/csrf', csrf);
 
 // サーバへGETメソッドでリクエストがあった場合の処理
 app.get('/', (req, res, next) => {
